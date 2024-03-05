@@ -58,6 +58,7 @@ defmodule Shortener.MixProject do
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
+      {:mock, "~> 0.3.0", only: :test},
       {:bandit, "~> 1.2"}
     ]
   end

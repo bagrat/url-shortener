@@ -20,7 +20,11 @@ defmodule ShortenerWeb.Router do
   scope "/", ShortenerWeb do
     pipe_through :browser
 
+    live "/", ShortUrlLive.Home, :home
+
     get "/", PageController, :home
+
+    get "/:slug", ShortUrlController, :go_to_target
   end
 
   # Other scopes may use custom stacks.
