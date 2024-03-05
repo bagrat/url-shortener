@@ -18,15 +18,30 @@
 // Include phoenix_html to handle method=PUT/DELETE in forms and buttons.
 import "phoenix_html"
 // Establish Phoenix Socket and LiveView configuration.
-import {Socket} from "phoenix"
-import {LiveSocket} from "phoenix_live_view"
-import topbar from "../vendor/topbar"
+let Hooks = {};
 
-let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+Hooks.AutoHideFlash = {
+  mounted() {
+    const self = this;
+    console.log("AutoHideFlash");
+
+    setTimeout(() => {
+      self.el.addEventListener("animationend", () => {
+        console.log("AutoHideFlash animationend");
+        self.el.remove();
+        self.pushEvent("lv:clear-flash", { key: self.el.dataset.key });
+      });
+
+      self.el.classList.add("animate-rollup");
+    }, 3000);
+  },
+};
+
 let liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
-  params: {_csrf_token: csrfToken}
-})
+  hooks: Hooks,
+  params: { _csrf_token: csrfToken },
+});
 
 // Show progress bar on live navigation and form submits
 topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
