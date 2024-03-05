@@ -5,7 +5,8 @@ defmodule ShortenerWeb.ErrorHTMLTest do
   import Phoenix.Template
 
   test "renders 404.html" do
-    assert render_to_string(ShortenerWeb.ErrorHTML, "404", "html", []) == "Not Found"
+    assert render_to_string(ShortenerWeb.ErrorHTML, "404", "html", []) =~
+             "The URL does not exist or has already expired"
   end
 
   test "renders 500.html" do

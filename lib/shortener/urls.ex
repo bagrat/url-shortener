@@ -41,10 +41,22 @@ defmodule Shortener.Urls do
     end
   end
 
-  def get_target_url(slug) do
+  @doc """
+  Gets the target url for the given slug.
+  """
+  def get_short_url(slug) do
     case Repo.get_by(ShortUrl, slug: slug) do
       nil -> {:error, :not_found}
-      short_url -> {:ok, short_url.target}
+      short_url -> {:ok, short_url}
     end
+  end
+
+  @doc """
+  Increases visits count for the given short URL.
+  """
+  def increment_visits(%ShortUrl{} = short_url) do
+    short_url
+    |> ShortUrl.changeset(%{visits: short_url.visits + 1})
+    |> Repo.update()
   end
 end
