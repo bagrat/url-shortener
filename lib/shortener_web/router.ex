@@ -22,8 +22,6 @@ defmodule ShortenerWeb.Router do
 
     live "/", ShortUrlLive.Home, :home
 
-    get "/", PageController, :home
-
     get "/:slug", ShortUrlController, :go_to_target
   end
 
