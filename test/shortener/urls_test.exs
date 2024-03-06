@@ -54,4 +54,24 @@ defmodule Shortener.Urls.Test do
     assert Urls.list_user_urls(owner) == [short_url1, short_url2]
     assert Urls.list_user_urls(other_owner) == [short_url3]
   end
+
+  test "create_short_url/1 correctly validates the target URL" do
+    assert {:ok, _} = Urls.create_short_url("https://bagrat.io")
+    assert {:ok, _} = Urls.create_short_url("https://bagrat.io/")
+
+    assert {:ok, _} =
+             Urls.create_short_url(
+               "https://www.google.com/search?q=sfdf&oq=sfdf&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIJCAEQABgKGIAEMgkIAhAuGAoYgAQyCQgDEAAYChiABDIHCAQQABiABDIHCAUQABiABDIHCAYQABiABDIPCAcQLhgKGMcBGNEDGIAEMgcICBAAGIAEMgcICRAAGIAE0gEIMzI5NWowajSoAgCwAgA&sourceid=chrome&ie=UTF-8"
+             )
+
+    assert {:ok, _} =
+             Urls.create_short_url(
+               "https://www.linkedin.com/jobs/search/?currentJobId=3749627036&f_C=698916%2C10347861%2C69267561&geoId=92000000&origin=COMPANY_PAGE_JOBS_CLUSTER_EXPANSION"
+             )
+
+    assert {:ok, _} =
+             Urls.create_short_url(
+               "https://charmed-zebra-especially.ngrok-free.app/#/85b7eafa-8398-4246-9d13-f75ba1c2d4c7"
+             )
+  end
 end
