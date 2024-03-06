@@ -96,7 +96,7 @@ defmodule ShortenerWeb.ShortUrlLive.Home do
   def handle_event("validate_edit", %{"short_url" => short_url_params}, socket) do
     changeset =
       socket.assigns.url_to_edit
-      |> Urls.change_slug(short_url_params)
+      |> Urls.change_short_url(short_url_params)
       |> Map.put(:action, :validate)
 
     {:noreply, assign_form(socket, changeset)}

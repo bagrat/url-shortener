@@ -12,13 +12,17 @@ defmodule Shortener.Urls.ShortUrl do
     timestamps(type: :utc_datetime)
   end
 
+  @valid_url_regex ~r/^(https?:\/\/)([\p{L}\p{N}\p{S}\-\.]+)\.([\p{L}\p{N}]{2,})([\/\p{L}\p{N}\p{S}\/\.\-_]*)*\/*$/
+  @valid_slug_regex ~r/^[a-zA-Z0-9_-]+$/
+
   @doc false
   def create_changeset(short_url, attrs) do
     short_url
     |> cast(attrs, [:slug, :target, :visits, :owner_id])
     |> maybe_initialize_visits()
     |> validate_required([:slug, :target, :visits])
-    |> validate_target()
+    |> validate_format(:target, @valid_url_regex)
+    |> validate_slug()
     |> unique_constraint(:slug, name: :short_urls_slug_index)
   end
 
@@ -26,15 +30,14 @@ defmodule Shortener.Urls.ShortUrl do
     short_url
     |> cast(attrs, [:slug])
     |> validate_required([:slug])
+    |> validate_slug()
     |> unique_constraint(:slug, name: :short_urls_slug_index)
   end
 
-  @doc false
-  def validate_slug(short_url, attrs) do
-    short_url
-    |> cast(attrs, [:slug])
-    |> validate_required([:slug])
-    |> unique_constraint(:slug, name: :short_urls_slug_index)
+  def validate_slug(changeset) do
+    changeset
+    |> validate_length(:slug, min: 3, max: 20)
+    |> validate_format(:slug, @valid_slug_regex)
   end
 
   def maybe_initialize_visits(changeset) do
@@ -42,22 +45,6 @@ defmodule Shortener.Urls.ShortUrl do
       put_change(changeset, :visits, 0)
     else
       changeset
-    end
-  end
-
-  @valid_url_regex ~r/^(https?:\/\/)([\p{L}\p{N}\p{S}\-\.]+)\.([\p{L}\p{N}]{2,})([\/\p{L}\p{N}\p{S}\/\.\-_]*)*\/*$/
-
-  defp validate_target(changeset) do
-    case changeset do
-      %Ecto.Changeset{valid?: true, changes: %{target: target}} ->
-        if Regex.match?(@valid_url_regex, target) do
-          changeset
-        else
-          add_error(changeset, :target, "is not a valid URL")
-        end
-
-      _ ->
-        changeset
     end
   end
 end

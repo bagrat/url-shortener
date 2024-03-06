@@ -91,7 +91,7 @@ defmodule Shortener.Urls do
   """
   def change_slug(%ShortUrl{} = short_url, attrs) do
     short_url
-    |> ShortUrl.validate_slug(attrs)
+    |> ShortUrl.update_changeset(attrs)
   end
 
   @doc """
