@@ -15,26 +15,30 @@ defmodule Shortener.Urls.ShortUrl do
   @doc false
   def changeset(short_url, attrs) do
     short_url
-    |> cast(attrs, [:slug, :target, :visits])
-    |> validate_required([:slug, :target, :visits])
-  end
-
-  @doc false
-  def changeset_without_owner(short_url, attrs) do
-    short_url
-    |> cast(attrs, [:slug, :target])
-    |> initialize_visits()
+    |> cast(attrs, [:slug, :target, :visits, :owner_id])
+    |> maybe_initialize_visits()
     |> validate_required([:slug, :target, :visits])
     |> validate_target()
     |> unique_constraint(:slug, name: :short_urls_slug_index)
   end
 
-  def initialize_visits(short_url) do
+  @doc false
+  def validate_slug(short_url, attrs) do
     short_url
-    |> put_change(:visits, 0)
+    |> cast(attrs, [:slug])
+    |> validate_required([:slug])
+    |> unique_constraint(:slug, name: :short_urls_slug_index)
   end
 
-  @valid_url_regex ~r"^(https?://)?([\da-z\.-]+)\.([a-z\.]{2,6})([/\w \.-]*)*/?$"
+  def maybe_initialize_visits(changeset) do
+    if changeset.valid? and get_change(changeset, :visits) == nil do
+      put_change(changeset, :visits, 0)
+    else
+      changeset
+    end
+  end
+
+  @valid_url_regex ~r/^(https?:\/\/)([\p{L}\p{N}\p{S}\-\.]+)\.([\p{L}\p{N}]{2,})([\/\p{L}\p{N}\p{S}\/\.\-_]*)*\/*$/
 
   defp validate_target(changeset) do
     case changeset do

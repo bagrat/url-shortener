@@ -1,0 +1,181 @@
+<div class="mx-auto max-w-[30rem]">
+  <.header class="text-center">
+    Shorten your long URL
+  </.header>
+
+  <form id="new-form" phx-submit="shorten">
+    <div class="mt-10 bg-white flex flex-col items-center">
+      <input
+        id="target-url"
+        class={[
+          "mt-2 w-full block rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
+          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400"
+        ]}
+        placeholder="Enter your long URL"
+        name="target_url"
+        type="text"
+        label="URL"
+        phx-hook="SubmitButtonEnablement"
+      />
+
+      <.button
+        id="shorten-button"
+        class="disabled:bg-slate-400 mt-3 w-[10rem]"
+        phx-disable-with="Shortening..."
+        disabled
+      >
+        Shorten
+      </.button>
+    </div>
+  </form>
+
+  <%= if assigns[:last_url] do %>
+    <div class="mt-12">
+      <div class="text-center">
+        Here is your short URL for <a class="underline text-[#3189b5]" href={@target_url}><%= minify_url(@target_url) %></a>:
+      </div>
+      <div class="rounded-[0.5rem]  border w-auto p-6 border-zinc-200 mt-2 text-center relative">
+        <a
+          id="short-url"
+          class="font-bold text-xl text-[#319264]"
+          href={@last_url}
+          target="_blank"
+        >
+          <%= @last_url %>
+        </a>
+        <button
+          id="copy-button"
+          data-copy-from="#short-url"
+          class={[
+            "text-[#319264] font-bold text-xs bg-white px-2 py-1 border border-[#319264] rounded-lg active:bg-[#42a979] active:text-white",
+            "absolute right-5 top-1/2 -translate-y-1/2"
+          ]}
+          phx-hook="CopyButton"
+        >
+          <%!-- <.icon name="hero-clipboard" class="size-3 pt-0 -mt-1" /> --%>
+          <span>Copy</span>
+        </button>
+      </div>
+    </div>
+  <% end %>
+
+  <%= if assigns[:current_user] do %>
+    <%= if @num_of_urls > 0 do %>
+      <div class="overflow-y-auto px-4 sm:overflow-visible sm:px-0 mt-20">
+        <h4>
+          Below is the list of your shortened URLs. You can edit slugs and see the number of visits to each URL.
+        </h4>
+        <table class="w-[40rem] mt-11 sm:w-full">
+          <thead class="text-sm text-left leading-6 text-zinc-500">
+            <tr>
+              <th class="p-0 pb-4 pr-6 font-normal">URL</th>
+              <th :if={assigns[:current_user]} class="p-0 pb-4 pr-6 font-normal">Visits</th>
+              <th :if={assigns[:current_user]} class="relative p-0 pb-4">
+                <span class="sr-only"><%= gettext("Actions") %></span>
+              </th>
+            </tr>
+          </thead>
+          <tbody
+            id="urls"
+            phx-update={match?(%Phoenix.LiveView.LiveStream{}, @streams.urls) && "stream"}
+            class="relative divide-y divide-zinc-100 border-t border-zinc-200 text-sm leading-6 text-zinc-700"
+          >
+            <tr :for={{id, url} <- @streams.urls} id={id} class="group hover:bg-zinc-50">
+              <td class={["relative p-0", "hover:cursor-pointer"]}>
+                <div class="block py-4 pr-6">
+                  <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl" />
+                  <span class={["relative"]}>
+                    <.link id={"copy-target-#{id}"} href={make_full_url(url.slug)} target="_blank">
+                      <%= url.slug %>
+                      <.icon
+                        name="hero-arrow-right"
+                        class="size-4 pt-0 -mt-1 text-[#d0d0d0] fill-current"
+                      />
+                      <span class="text-zinc-500"><%= minify_url(url.target) %></span>
+                    </.link>
+                  </span>
+                </div>
+              </td>
+              <td :if={assigns[:current_user]} class={["relative p-0"]}>
+                <div class="block py-4 pr-6">
+                  <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl" />
+                  <span class={["relative"]}>
+                    <%= url.visits %>
+                  </span>
+                </div>
+              </td>
+              <td :if={assigns[:current_user]} class="relative w-14 p-0">
+                <div class="relative whitespace-nowrap py-4 text-right text-sm font-medium">
+                  <span class="absolute -inset-y-px -right-4 left-0 group-hover:bg-zinc-50 sm:rounded-r-xl" />
+                  <.link
+                    id={"copy-button-#{id}"}
+                    class="relative ml-1"
+                    data-copy-from={"#copy-target-#{id}"}
+                    phx-hook="CopyButton"
+                  >
+                    <.icon
+                      name="hero-clipboard"
+                      class="size-4 pt-0 -mt-1 text-[#319264] hover:text-[#319264]/70 fill-current"
+                    />
+                  </.link>
+
+                  <.link class="relative ml-1" patch={~p"/urls/#{url}/edit"}>
+                    <.icon
+                      name="hero-pencil-square"
+                      class="size-4 pt-0 -mt-1 text-[#3189b5] hover:text-[#3189b5]/70 fill-current"
+                    />
+                  </.link>
+
+                  <.link
+                    phx-click={JS.push("delete", value: %{id: url.id}) |> hide("##{id}")}
+                    class="relative ml-1"
+                    data-confirm="Are you sure you want to delete this URL?"
+                  >
+                    <.icon
+                      name="hero-trash"
+                      class="size-4 pt-0 -mt-1 text-[#b6374c] hover:text-[#b6374c]/70 fill-current"
+                    />
+                  </.link>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="mt-20 text-center">
+      In order to keep the history of your shortened URLs, edit slugs and see the number of visits, please
+      <.link href={~p"/users/log_in"} class="text-[#3189b5] font-semibold hover:text-[#3189b5]/80">
+        log in
+      </.link>
+      using your existing account or
+      <.link
+        href={~p"/users/register"}
+        class=" text-[#3189b5] font-semibold hover:text-[#3189b5]/80"
+      >
+        register
+      </.link>
+      a new one.
+    </div>
+  <% end %>
+
+  <.modal :if={@live_action in [:edit]} id="edit-modal" show on_cancel={JS.patch(~p"/")}>
+    <.header>
+      Update the slug of your URL
+    </.header>
+
+    <.simple_form
+      for={@edit_form}
+      id="short_url-form"
+      phx-change="validate_edit"
+      phx-submit="save"
+    >
+      <.input field={@edit_form[:slug]} type="text" label="Slug" />
+      <.input field={@edit_form[:target]} type="text" label="Target" disabled />
+      <:actions>
+        <.button phx-disable-with="Saving...">Save</.button>
+      </:actions>
+    </.simple_form>
+  </.modal>
+</div>
