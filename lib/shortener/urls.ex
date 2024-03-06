@@ -37,7 +37,7 @@ defmodule Shortener.Urls do
         owner -> Map.put(attrs, :owner_id, owner.id)
       end
 
-    case ShortUrl.changeset(%ShortUrl{}, attrs)
+    case ShortUrl.create_changeset(%ShortUrl{}, attrs)
          |> Repo.insert() do
       {:ok, short_url} ->
         {:ok, short_url}
@@ -115,7 +115,7 @@ defmodule Shortener.Urls do
   """
   def update_short_url(%ShortUrl{} = short_url, attrs) do
     short_url
-    |> ShortUrl.changeset(attrs)
+    |> ShortUrl.update_changeset(attrs)
     |> Repo.update()
   end
 
@@ -129,6 +129,6 @@ defmodule Shortener.Urls do
 
   """
   def change_short_url(%ShortUrl{} = short_url, attrs \\ %{}) do
-    ShortUrl.changeset(short_url, attrs)
+    ShortUrl.update_changeset(short_url, attrs)
   end
 end

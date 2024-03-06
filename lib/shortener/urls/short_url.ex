@@ -13,12 +13,19 @@ defmodule Shortener.Urls.ShortUrl do
   end
 
   @doc false
-  def changeset(short_url, attrs) do
+  def create_changeset(short_url, attrs) do
     short_url
     |> cast(attrs, [:slug, :target, :visits, :owner_id])
     |> maybe_initialize_visits()
     |> validate_required([:slug, :target, :visits])
     |> validate_target()
+    |> unique_constraint(:slug, name: :short_urls_slug_index)
+  end
+
+  def update_changeset(short_url, attrs) do
+    short_url
+    |> cast(attrs, [:slug])
+    |> validate_required([:slug])
     |> unique_constraint(:slug, name: :short_urls_slug_index)
   end
 
