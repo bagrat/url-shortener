@@ -12,7 +12,7 @@ defmodule Shortener.Urls.ShortUrl do
     timestamps(type: :utc_datetime)
   end
 
-  @valid_url_regex ~r/^(https?:\/\/)([\p{L}\p{N}\p{S}\-\.]+)\.([\p{L}\p{N}]{2,})([\/\p{L}\p{N}\p{S}\/\.\-_]*)*\/*$/
+  @valid_url_regex ~r/^(https?:\/\/)([\p{L}\p{N}\p{S}\-\.]+)\.([\p{L}\p{N}]{2,})\/([\/\p{L}\p{N}\p{S}\/\.\-_]*)(\?[=&;\p{L}\p{N}\p{S}\-\_\.%]*)?\/?$/
   @valid_slug_regex ~r/^[a-zA-Z0-9_-]+$/
 
   @doc false

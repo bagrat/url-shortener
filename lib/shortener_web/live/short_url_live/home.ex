@@ -85,7 +85,7 @@ defmodule ShortenerWeb.ShortUrlLive.Home do
          |> assign(:last_url, make_full_url(short_url.slug))
          |> assign(:target_url, target)}
 
-      {:error, %Ecto.Changeset{errors: [target: {"is not a valid URL", _}]}} ->
+      {:error, %Ecto.Changeset{errors: [target: _]}} ->
         {:noreply,
          socket
          |> put_flash(:error, "Your have entered an invalid URL")}
