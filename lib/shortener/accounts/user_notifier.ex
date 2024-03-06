@@ -12,9 +12,9 @@ defmodule Shortener.Accounts.UserNotifier do
       |> subject(subject)
       |> text_body(body)
 
-    with {:ok, _metadata} <- Mailer.deliver(email) do
-      {:ok, email}
-    end
+    # with {:ok, _metadata} <- Mailer.deliver(email) do
+    {:ok, email}
+    # end
   end
 
   @doc """
