@@ -2,8 +2,8 @@ import Config
 
 # Configure your database
 config :shortener, Shortener.Repo,
-  username: "postgres",
-  password: "postgres",
+  username: "shortener_user",
+  password: "shortener_password",
   hostname: "localhost",
   port: 54320,
   database: "shortener_dev",

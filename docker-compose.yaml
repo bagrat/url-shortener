@@ -8,5 +8,17 @@ services:
     volumes:
       - ./.ignore/postgres:/var/lib/postgresql/data
     environment:
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_USER=postgres
+      - POSTGRES_USER=shortener_user
+      - POSTGRES_PASSWORD=shortener_password
+      - POSTGRES_DB=shortener
+
+  app:
+    build: .
+    ports:
+      - 4000:4000
+    environment:
+      - PHX_HOST=localhost
+      - DATABASE_URL=ecto://shortener_user:shortener_password@postgres:5432/shortener
+      - SECRET_KEY_BASE=k79uehhucEcFWGdZA75k5JiIDaflWDQz3wONKoYCPcHVtBO3bcV+06rH4+8tc/ZW
+    depends_on:
+      - postgres
